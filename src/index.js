@@ -5,9 +5,12 @@ import Task from "./task.js";
 
 (() => {
   const project = new Project('Personal');
-  console.log(project.tasks);
   const task = new Task('Workout', 'Go for a morning run', '2025-06-11', 'high', false);
   project.addTask(task);
-  console.log(project.tasks);
-  console.log(format(task.dueDate, "dd-MM-yyyy"));
+
+  const projectsDiv = document.querySelector('.projects');
+  const projectDiv = document.createElement('div');
+  projectDiv.className = 'project';
+  projectDiv.textContent = project.title;
+  projectsDiv.appendChild(projectDiv);
 })();
