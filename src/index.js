@@ -8,9 +8,9 @@ import Task from "./task.js";
   const task = new Task('Workout', 'Go for a morning run', '2025-06-11', 'high', false);
   project.addTask(task);
 
-  const projectsDiv = document.querySelector('.projects');
+  const projectsDiv = document.querySelector('.project-sections');
   const projectDiv = document.createElement('div');
-  projectDiv.className = 'project';
+  projectDiv.className = 'project-section';
   projectDiv.textContent = project.title;
   projectsDiv.appendChild(projectDiv);
 })();
