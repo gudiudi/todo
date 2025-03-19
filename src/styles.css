@@ -67,6 +67,30 @@ body {
   gap: 0.6rem;
 }
 
+.completed {
+  filter: brightness(80%);
+}
+
+.completed div {
+  text-decoration: line-through;
+}
+
+.priority-high {
+  border-left: solid 3px red;
+}
+
+.priority-medium {
+  border-left: solid 3px yellow;
+}
+
+.priority-low {
+  border-left: solid 3px green;
+}
+
+.task-checkbox {
+  flex: 0;
+}
+
 .task-title {
   flex: 1;
 }

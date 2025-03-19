@@ -30,11 +30,6 @@ export default class UIController {
     tasks.forEach((task) => {
       const taskDiv = UIController.#createTaskElement(task);
       tasksDiv.appendChild(taskDiv);
-
-      taskDiv.addEventListener('click', () => {
-        task.toggleComplete();
-        console.log(task);
-      });
     });
 
     container.appendChild(projectTitleElement);
@@ -44,6 +39,12 @@ export default class UIController {
   static #createTaskElement(task) {
     const taskDiv = document.createElement('div');
     taskDiv.className = 'task';
+    taskDiv.classList.add(`priority-${task.priority}`);
+
+    const taskCheckbox = document.createElement('input');
+    taskCheckbox.type = 'checkbox';
+    taskCheckbox.className = 'task-checkbox';
+    taskCheckbox.checked = task.completed;
 
     const taskTitleDiv = document.createElement('div');
     taskTitleDiv.className = 'task-title';
@@ -65,13 +66,12 @@ export default class UIController {
     taskRemoveBtn.id = 'task-remove-btn';
     taskRemoveBtn.textContent = 'Remove';
 
-    const priorities = {
-      'high': 'solid 3px red',
-      'medium': 'solid 3px yellow',
-      'low': 'solid 3px green'
-    }
-    taskDiv.style = `border-left: ${priorities[task.priority]};`;
+    taskCheckbox.addEventListener('change', () => {
+      task.toggleComplete();
+      (task.completed) ? taskDiv.classList.add('completed') : taskDiv.classList.remove('completed');
+    });
 
+    taskDiv.appendChild(taskCheckbox);
     taskDiv.appendChild(taskTitleDiv);
     taskDiv.appendChild(taskDueDateDiv);
     taskDiv.appendChild(taskDetailsBtn);

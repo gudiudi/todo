@@ -45,6 +45,10 @@ export default class Task {
     this.#priority = priority;
   }
 
+  get completed() {
+    return this.#completed;
+  }
+
   toggleComplete() {
     this.#completed = !this.#completed;
   }
