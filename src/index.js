@@ -2,15 +2,14 @@ import { format } from "date-fns";
 import "./styles.css";
 import Project from "./project.js";
 import Task from "./task.js";
+import UIController from "./ui.js";
 
 (() => {
   const project = new Project('Personal');
-  const task = new Task('Workout', 'Go for a morning run', '2025-06-11', 'high', false);
+  const task = new Task('Workout', 'Go for a morning run', format(new Date(), 'yyyy-MM-dd'), 'high', false);
   project.addTask(task);
 
-  const projectsDiv = document.querySelector('.project-sections');
-  const projectDiv = document.createElement('div');
-  projectDiv.className = 'project-section';
-  projectDiv.textContent = project.title;
-  projectsDiv.appendChild(projectDiv);
+  const project2 = new Project('Work');
+
+  UIController.renderProjects([project, project2]);
 })();
