@@ -82,3 +82,47 @@ body {
 .task button:hover {
   cursor: pointer;
 }
+
+/* Modal */
+dialog {
+  border: none;
+  border-radius: 10px;
+  min-width: 300px
+}
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+form > div:nth-child(-n+3) {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+input {
+  border: 1px solid #D6D6D6;
+  border-radius: 5px;
+  padding: 0.5rem;
+  outline: none;
+  flex: 1 1 100%;
+}
+
+.button-group {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.button-group button {
+  flex: 1;
+  border: none;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+}
+
+.button-group button:hover {
+  cursor: pointer;
+  background-color: #D6D6D6;
+}

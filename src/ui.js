@@ -69,7 +69,7 @@ export default class UIController {
       'medium': 'solid 3px yellow',
       'low': 'solid 3px green'
     }
-    taskDiv.style = `border-left: ${priorities[task.priority]};`
+    taskDiv.style = `border-left: ${priorities[task.priority]};`;
 
     taskDiv.appendChild(taskTitleDiv);
     taskDiv.appendChild(taskDueDateDiv);

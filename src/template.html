@@ -14,5 +14,19 @@
     <button id="new-project-btn">Add a project</button>
   </div>
   <div class="container"></div>
+  <dialog id="new-project-modal">
+    <div class="modal-content">
+      <form id="new-project-form">
+        <div>
+          <label for="title">Title</label>
+          <input type="text" id="title" name="title" required>
+        </div>
+        <div class="button-group">
+          <button id="close-modal-btn" formmethod="dialog">Cancel</button>
+          <button id="submit-modal-btn">Submit</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
 </body>
 </html>
