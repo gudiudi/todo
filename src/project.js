@@ -35,7 +35,7 @@ export default class Project {
 
   deleteTask(taskId) {
     const index = this.#tasks.findIndex((task) => task.id === taskId);
-    if (!index) return;
+    if (index === -1) return;
     this.#tasks.splice(index, 1);
   }
 }
