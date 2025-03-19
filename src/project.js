@@ -19,12 +19,22 @@ export default class Project {
     return [...this.#tasks];
   }
 
+  toJSON() {
+    return { title: this.#title, tasks: this.#tasks };
+  }
+
+  static fromObject(obj) {
+    const project = new Project(obj.title);
+    project.#tasks = obj.tasks || [];
+    return project;
+  }
+
   addTask(task) {
     this.#tasks.push(task);
   }
 
   deleteTask(taskId) {
-    const index = this.#tasks.findIndex(taskId);
+    const index = this.#tasks.findIndex((task) => task.id === taskId);
     if (!index) return;
     this.#tasks.splice(index, 1);
   }

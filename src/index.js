@@ -8,12 +8,9 @@ import UIController from "./ui.js";
   const project = new Project('Personal');
   const task = new Task('Workout', 'Go for a morning run', format(new Date(), 'yyyy-MM-dd'), 'high', false);
   project.addTask(task);
+  UIController.renderProjects([project]);
 
-  const project2 = new Project('Work');
-
-  UIController.renderProjects([project, project2]);
-
-  const newProjectBtn = document.querySelector("#new-project-btn");
+  const newProjectBtn = document.getElementById('new-project-btn');
   const newProjectModal = document.getElementById('new-project-modal');
   const newProjectForm = document.getElementById('new-project-form');
   const closeModalBtn = document.getElementById('close-modal-btn');
@@ -31,11 +28,14 @@ import UIController from "./ui.js";
 
     const titleValue = document.getElementById("title").value;
     const newProject = new Project(titleValue);
+    localStorage.setItem('Projects', JSON.stringify(newProject));
     
     newProjectForm.reset();
     newProjectModal.close();
 
-    UIController.renderProjects([newProject]);
+    let storedProject = JSON.parse(localStorage.getItem('Projects'));
+    storedProject = Project.fromObject(storedProject);
+    console.log(storedProject);
   });
 
 
