@@ -96,7 +96,7 @@ body {
 }
 
 .task button {
-  background: transparent;
+  background-color: #FFF;
   border: none;
   font-size: 16px;
   border: solid 1px #E5E7EB;
@@ -105,28 +105,32 @@ body {
 
 .task button:hover {
   cursor: pointer;
+  background-color: #fff9f9;
 }
 
 /* Modal */
 dialog {
   border: none;
-  border-radius: 10px;
   min-width: 300px
 }
-.modal-content form {
+
+form {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-form > div:nth-child(-n+3) {
+form > div {
   display: flex;
   flex-wrap: wrap;
 }
 
+form > div:last-child {
+  flex-wrap: nowrap;
+}
+
 input {
   border: 1px solid #D6D6D6;
-  border-radius: 5px;
   padding: 0.5rem;
   outline: none;
   flex: 1 1 100%;
@@ -143,7 +147,6 @@ input {
   border: none;
   font-size: 1rem;
   padding: 0.5rem 1rem;
-  border-radius: 10px;
 }
 
 .button-group button:hover {

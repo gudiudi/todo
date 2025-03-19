@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import Project from "./project.js";
 
 export default class UIController {
   static renderProjects(projects) {
@@ -79,5 +80,68 @@ export default class UIController {
     taskDiv.appendChild(taskEditBtn);
     taskDiv.appendChild(taskRemoveBtn);
     return taskDiv;
+  }
+
+  static createDialogElement(properties, onSubmit) {
+    const body = document.querySelector('body');
+    const dialog = document.createElement('dialog');
+    const form = document.createElement('form');
+    form.method = 'dialog';
+
+    properties.forEach((prop) => {
+      const div = document.createElement('div');
+      const label = document.createElement('label');
+      label.htmlFor = prop.value;
+      label.textContent = prop.value[0].toUpperCase() + prop.value.slice(1, prop.value.length) + ':';
+      const input = document.createElement('input');
+      input.type = prop.type;
+      input.id = prop.value;
+      input.name = prop.value;
+      input.required = true;
+
+      div.appendChild(label);
+      div.appendChild(input);
+      form.appendChild(div);
+    });
+
+    const buttonGroup = document.createElement('div');
+    buttonGroup.className = 'button-group';
+    const closeModalBtn = document.createElement('button');
+    closeModalBtn.type = 'button';
+    closeModalBtn.textContent = 'Close';
+    const submitModalBtn = document.createElement('button');
+    submitModalBtn.type = 'submit';
+    submitModalBtn.textContent = 'Submit';
+
+    closeModalBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      dialog.close();
+    })
+
+    submitModalBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+  
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const formData = {};
+      properties.forEach(prop => {
+        formData[prop.value] = form.elements[prop.value].value;
+      });
+
+      if (onSubmit) onSubmit(formData);
+
+      form.reset();
+      dialog.close();
+    });
+
+    buttonGroup.appendChild(closeModalBtn);
+    buttonGroup.appendChild(submitModalBtn);
+    form.appendChild(buttonGroup);
+    dialog.appendChild(form);
+    body.appendChild(dialog);
+    return dialog;
   }
 }

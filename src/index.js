@@ -13,47 +13,21 @@ import UIController from "./ui.js";
   defaultProject.addTask(defaultTask);
   defaultProject.addTask(defaultTask2);
   projects.push(defaultProject);
-
   localStorage.setItem('Projects', [JSON.stringify(projects)]);
-
   UIController.renderProjects([defaultProject]);
 
+
   const newProjectBtn = document.getElementById('new-project-btn');
-  const newProjectModal = document.getElementById('new-project-modal');
-  const newProjectForm = document.getElementById('new-project-form');
-  const closeModalBtn = document.getElementById('close-modal-btn');
-  const submitModalBtn = document.getElementById('submit-modal-btn');
-
-  newProjectBtn.addEventListener("click", () => newProjectModal.showModal());
-
-  submitModalBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    if (!newProjectForm.checkValidity()) {
-      newProjectForm.reportValidity();
-      return;
-    }
-
-    const titleValue = document.getElementById("title").value;
-    const newProject = new Project(titleValue);
+  const newProjectModal = UIController.createDialogElement([{value: 'title', type: 'text'}], (data) => {
+    const newProject = new Project(data.title);
     projects.push(newProject);
     localStorage.setItem('Projects', JSON.stringify(projects));
 
-    newProjectForm.reset();
-    newProjectModal.close();
-
     const storedProjects = JSON.parse(localStorage.getItem('Projects')) || [];
-
     const restoredProjects = storedProjects.map((project) => Project.fromObject(project, Task));
-
     console.log(restoredProjects);
 
     UIController.renderProjects(restoredProjects);
   });
-
-
-  closeModalBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    newProjectModal.close();
-  });
+  newProjectBtn.addEventListener("click", () => newProjectModal.showModal());
 })();
