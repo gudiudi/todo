@@ -23,9 +23,9 @@ export default class Project {
     return { title: this.#title, tasks: this.#tasks };
   }
 
-  static fromObject(obj) {
+  static fromObject(obj, Task) {
     const project = new Project(obj.title);
-    project.#tasks = obj.tasks || [];
+    obj.tasks.forEach((task) => project.addTask(Task.fromObject(task)));
     return project;
   }
 

@@ -48,4 +48,19 @@ export default class Task {
   toggleComplete() {
     this.#completed = !this.#completed;
   }
+
+  toJSON() {
+    return { 
+      title: this.#title, 
+      description: this.#description, 
+      dueDate: this.#dueDate,
+      priority: this.#priority,
+      completed: this.#completed
+    };
+  }
+
+  static fromObject(obj) {
+    const task = new Task(obj.title, obj.description, obj.dueDate, obj.priority, obj.completed);
+    return task;
+  }
 }

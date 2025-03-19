@@ -33,6 +33,7 @@ export default class UIController {
 
       taskDiv.addEventListener('click', () => {
         task.toggleComplete();
+        console.log(task);
       });
     });
 

@@ -5,10 +5,18 @@ import Task from "./task.js";
 import UIController from "./ui.js";
 
 (() => {
-  const project = new Project('Personal');
-  const task = new Task('Workout', 'Go for a morning run', format(new Date(), 'yyyy-MM-dd'), 'high', false);
-  project.addTask(task);
-  UIController.renderProjects([project]);
+  const projects = [];
+
+  const defaultProject = new Project('Personal');
+  const defaultTask = new Task('Workout', 'Go for a morning run', format(new Date(), 'yyyy-MM-dd'), 'high', false);
+  const defaultTask2 = new Task('Study', 'Study for the day', format(new Date(), 'yyyy-MM-dd'), 'low', false);
+  defaultProject.addTask(defaultTask);
+  defaultProject.addTask(defaultTask2);
+  projects.push(defaultProject);
+
+  localStorage.setItem('Projects', [JSON.stringify(projects)]);
+
+  UIController.renderProjects([defaultProject]);
 
   const newProjectBtn = document.getElementById('new-project-btn');
   const newProjectModal = document.getElementById('new-project-modal');
@@ -28,14 +36,19 @@ import UIController from "./ui.js";
 
     const titleValue = document.getElementById("title").value;
     const newProject = new Project(titleValue);
-    localStorage.setItem('Projects', JSON.stringify(newProject));
-    
+    projects.push(newProject);
+    localStorage.setItem('Projects', JSON.stringify(projects));
+
     newProjectForm.reset();
     newProjectModal.close();
 
-    let storedProject = JSON.parse(localStorage.getItem('Projects'));
-    storedProject = Project.fromObject(storedProject);
-    console.log(storedProject);
+    const storedProjects = JSON.parse(localStorage.getItem('Projects')) || [];
+
+    const restoredProjects = storedProjects.map((project) => Project.fromObject(project, Task));
+
+    console.log(restoredProjects);
+
+    UIController.renderProjects(restoredProjects);
   });
 
 
