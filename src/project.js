@@ -4,7 +4,7 @@ export default class Project {
 
   constructor(title) {
     this.#title = title;
-    this.#tasks = [];
+    this.#tasks = []; // should've use id and store them to localstorage instead of this
   }
 
   get title() {

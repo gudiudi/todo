@@ -45,6 +45,7 @@ export default class UIController {
     taskCheckbox.type = 'checkbox';
     taskCheckbox.className = 'task-checkbox';
     taskCheckbox.checked = task.completed;
+    (task.completed) ? taskDiv.classList.add('completed') : taskDiv.classList.remove('completed')
 
     const taskTitleDiv = document.createElement('div');
     taskTitleDiv.className = 'task-title';
