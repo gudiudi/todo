@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import Storage from "./storage.js";
-import Project from "./project.js";
+import Task from "./task.js";
 
 export default class UIController {
   static renderProjects(projects) {
@@ -38,6 +38,25 @@ export default class UIController {
 
     const tasksDiv = document.createElement('div');
     tasksDiv.className = 'tasks';
+
+    taskAddButton.addEventListener('click', () => {
+      const dialogElements = [
+        { value: 'title', type: 'text' },
+        { value: 'description', type: 'textarea' },
+        { value: 'dueDate', type: 'date' },
+        { value: 'priority', type: 'select', options: ['high', 'medium', 'low'] },
+        { value: 'completed', type: 'checkbox' }
+      ];
+      
+      const dialog = UIController.createDialogElement('task', dialogElements, (data) => {
+        console.log(data);
+        const newTask = new Task(data.title, data.description, format(new Date(data.dueDate), 'yyyy-MM-dd'), data.priority, data.completed);
+        Storage.addTask(project.id, newTask)
+        UIController.#reRender(project.id);
+      });
+
+      dialog.showModal();
+    });
 
     tasks.forEach((task) => {
       const taskDiv = UIController.#createTaskElement(task, project.id);
@@ -95,10 +114,7 @@ export default class UIController {
         task.priority = data.priority;
 
         Storage.updateTask(projectId, task);
-        const projects = Storage.load('Projects'); 
-        const projectIndex = projects.findIndex((project) => project.id === projectId);
-        UIController.renderProjects(projects);
-        UIController.renderTasks(projects[projectIndex].tasks, projects[projectIndex]);
+        UIController.#reRender(projectId);
       });
 
       dialog.querySelector('#title').value = task.title;
@@ -115,11 +131,7 @@ export default class UIController {
 
       const dialog = UIController.createDialogElement('delete', dialogElements, () => {
         Storage.deleteTask(projectId, task);
-
-        const projects = Storage.load('Projects'); 
-        const projectIndex = projects.findIndex((project) => project.id === projectId);
-        UIController.renderProjects(projects);
-        UIController.renderTasks(projects[projectIndex].tasks, projects[projectIndex]);
+        UIController.#reRender(projectId);
       });
 
       dialog.showModal();
@@ -131,6 +143,13 @@ export default class UIController {
     taskDiv.appendChild(taskEditBtn);
     taskDiv.appendChild(taskRemoveBtn);
     return taskDiv;
+  }
+
+  static #reRender(projectId) {
+    const projects = Storage.load('Projects'); 
+    const projectIndex = projects.findIndex((project) => project.id === projectId);
+    UIController.renderProjects(projects);
+    UIController.renderTasks(projects[projectIndex].tasks, projects[projectIndex]);
   }
 
   static createDialogElement(type, properties, onSubmit) {
@@ -169,12 +188,25 @@ export default class UIController {
         const p = document.createElement('p');
         p.textContent = prop.value;
         div.appendChild(p);
+      } else if (prop.type === 'textarea') {
+        const textarea = document.createElement('textarea');
+        textarea.id = prop.value;
+        textarea.name = prop.value;
+        textarea.required = true;
+        textarea.rows = 3;
+        div.appendChild(label);
+        div.appendChild(textarea);
       } else {
         const input = document.createElement('input');
         input.type = prop.type;
         input.id = prop.value;
         input.name = prop.value;
         input.required = true;
+
+        if (prop.type === 'checkbox') {
+          input.className = 'flex-0';
+          input.required = false;
+        }
 
         div.appendChild(label);
         div.appendChild(input);
@@ -208,7 +240,13 @@ export default class UIController {
 
       const formData = {};
       properties.forEach(prop => {
-        formData[prop.value] = form.elements[prop.value]?.value;
+        const element = form.elements[prop.value];
+
+        if (element?.type === "checkbox") {
+          formData[prop.value] = element.checked ? true : false;
+        } else {
+          formData[prop.value] = element?.value || '';
+        }
       });
 
       if (onSubmit) onSubmit(formData);

@@ -143,12 +143,17 @@ form > div {
   flex-wrap: wrap;
 }
 
+.flex-0 {
+  flex: 0;
+}
+
 form > div:last-child {
   flex-wrap: nowrap;
 }
 
 input,
-select {
+select,
+textarea {
   border: 1px solid #D6D6D6;
   padding: 0.5rem;
   outline: none;

@@ -11,6 +11,16 @@ export default class Storage {
     return objects.map((object) => Project.fromObject(object, Task));
   }
 
+  static addTask(projectId, task) {
+    const projects = Storage.load('Projects'); 
+    const projectIndex = projects.findIndex((project) => project.id === projectId);
+    if (projectIndex !== -1) {
+      projects[projectIndex].addTask(task);
+      
+      Storage.save('Projects', projects);
+    }
+  }
+
   static updateTask(projectId, task) {
     const projects = Storage.load('Projects'); 
     const projectIndex = projects.findIndex((project) => project.id === projectId);
