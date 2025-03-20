@@ -1,333 +1,376 @@
-import { isSameDay, parseISO, isBefore, startOfDay, format } from "date-fns";
+import { format, isBefore, isSameDay, parseISO, startOfDay } from "date-fns";
 import Storage from "./storage.js";
 import Task from "./task.js";
 
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export default class UIController {
-  static renderTodayTasks() {
-    const container = document.querySelector('.container');
-    container.innerHTML = '';
+	static renderTodayTasks() {
+		const container = document.querySelector(".container");
+		container.innerHTML = "";
 
-    const title = document.createElement('h2');
-    title.textContent = 'Today'
-    container.appendChild(title)
+		const title = document.createElement("h2");
+		title.textContent = "Today";
+		container.appendChild(title);
 
-    const tasksDiv = document.createElement('div');
-    tasksDiv.className = 'tasks';
+		const tasksDiv = document.createElement("div");
+		tasksDiv.className = "tasks";
 
-    const projects = Storage.load('Projects');
-    const todayTasks = [];
-    projects.forEach((project) => {
-      project.tasks.forEach((task) => {
-        if (isSameDay(task.dueDate, new Date())) {
-          todayTasks.push(task);
-        }
-      });
-    });
+		const projects = Storage.load("Projects");
+		const todayTasks = [];
 
-    console.log(todayTasks);
+		for (const project of projects) {
+			for (const task of project.tasks) {
+				if (isSameDay(task.dueDate, new Date())) {
+					todayTasks.push(task);
+				}
+			}
+		}
 
-    todayTasks.forEach((task) => {
-      const taskDiv = document.createElement('div');
-      taskDiv.className = 'task';
-      taskDiv.classList.add(`priority-${task.priority}`);
+		console.log(todayTasks);
 
-      const taskTitleDiv = document.createElement('div');
-      taskTitleDiv.className = 'task-title';
-      taskTitleDiv.textContent = task.title;
+		for (const task of todayTasks) {
+			const taskDiv = document.createElement("div");
+			taskDiv.className = "task";
+			taskDiv.classList.add(`priority-${task.priority}`);
 
-      const taskDueDateDiv = document.createElement('div');
-      taskDueDateDiv.className = 'task-due-date';
-      taskDueDateDiv.textContent = format(task.dueDate, 'MMMM do');
+			const taskTitleDiv = document.createElement("div");
+			taskTitleDiv.className = "task-title";
+			taskTitleDiv.textContent = task.title;
 
-      taskDiv.appendChild(taskTitleDiv);
-      taskDiv.appendChild(taskDueDateDiv);
-      tasksDiv.appendChild(taskDiv);
-    });
+			const taskDueDateDiv = document.createElement("div");
+			taskDueDateDiv.className = "task-due-date";
+			taskDueDateDiv.textContent = format(task.dueDate, "MMMM do");
 
-    container.appendChild(tasksDiv);
-  }
+			taskDiv.appendChild(taskTitleDiv);
+			taskDiv.appendChild(taskDueDateDiv);
+			tasksDiv.appendChild(taskDiv);
+		}
 
-  static renderProjects(projects) {
-    const projectsDiv = document.querySelector('.project-sections');
-    projectsDiv.innerHTML = '';
+		container.appendChild(tasksDiv);
+	}
 
-    projects.forEach((project) => {
-      const projectDiv = document.createElement('div');
-      projectDiv.className = 'project-section';
-      projectDiv.textContent = project.title;
-      projectsDiv.appendChild(projectDiv);
+	static renderProjects(projects) {
+		const projectsDiv = document.querySelector(".project-sections");
+		projectsDiv.innerHTML = "";
 
-      projectDiv.addEventListener('click', () => {
-        UIController.renderTasks(project.tasks, project);
-      });
-    });
-  }
+		for (const project of projects) {
+			const projectDiv = document.createElement("div");
+			projectDiv.className = "project-section";
+			projectDiv.textContent = project.title;
+			projectsDiv.appendChild(projectDiv);
 
-  static renderTasks(tasks, project) {
-    tasks = tasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-    const container = document.querySelector('.container');
-    container.innerHTML = '';
+			projectDiv.addEventListener("click", () => {
+				UIController.renderTasks(project.tasks, project);
+			});
+		}
+	}
 
-    const div = document.createElement('div');
-    div.className = 'container-header';
+	static renderTasks(tasks, project) {
+		tasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+		const container = document.querySelector(".container");
+		container.innerHTML = "";
 
-    const projectTitleElement = document.createElement('h2');
-    projectTitleElement.textContent = project.title
-    div.appendChild(projectTitleElement);
+		const div = document.createElement("div");
+		div.className = "container-header";
 
-    const taskAddButton = document.createElement('button')
-    taskAddButton.id = 'new-task-btn';
-    taskAddButton.textContent = '+';
-    div.appendChild(taskAddButton);
+		const projectTitleElement = document.createElement("h2");
+		projectTitleElement.textContent = project.title;
+		div.appendChild(projectTitleElement);
 
-    const tasksDiv = document.createElement('div');
-    tasksDiv.className = 'tasks';
+		const taskAddButton = document.createElement("button");
+		taskAddButton.id = "new-task-btn";
+		taskAddButton.textContent = "+";
+		div.appendChild(taskAddButton);
 
-    taskAddButton.addEventListener('click', () => {
-      const dialogElements = [
-        { value: 'title', type: 'text' },
-        { value: 'description', type: 'textarea' },
-        { value: 'dueDate', type: 'date' },
-        { value: 'priority', type: 'select', options: ['high', 'medium', 'low'] },
-        { value: 'completed', type: 'checkbox' }
-      ];
-      
-      const dialog = UIController.createDialogElement('task', dialogElements, (data) => {
-        console.log(data);
-        const newTask = new Task(data.title, data.description, format(new Date(data.dueDate), 'yyyy-MM-dd'), data.priority, data.completed);
-        Storage.addTask(project.id, newTask)
-        UIController.#reRender(project.id);
-      });
+		const tasksDiv = document.createElement("div");
+		tasksDiv.className = "tasks";
 
-      dialog.showModal();
-    });
+		taskAddButton.addEventListener("click", () => {
+			const dialogElements = [
+				{ value: "title", type: "text" },
+				{ value: "description", type: "textarea" },
+				{ value: "dueDate", type: "date" },
+				{
+					value: "priority",
+					type: "select",
+					options: ["high", "medium", "low"],
+				},
+				{ value: "completed", type: "checkbox" },
+			];
 
-    tasks.forEach((task) => {
-      const taskDiv = UIController.#createTaskElement(task, project.id);
-      tasksDiv.appendChild(taskDiv);
-    });
+			const dialog = UIController.createDialogElement(
+				"task",
+				dialogElements,
+				(data) => {
+					console.log(data);
+					const newTask = new Task(
+						data.title,
+						data.description,
+						format(new Date(data.dueDate), "yyyy-MM-dd"),
+						data.priority,
+						data.completed,
+					);
+					Storage.addTask(project.id, newTask);
+					UIController.#reRender(project.id);
+				},
+			);
 
-    container.appendChild(div);
-    container.appendChild(tasksDiv);
-  }
+			dialog.showModal();
+		});
 
-  static #createTaskElement(task, projectId) {
-    const taskDiv = document.createElement('div');
-    taskDiv.className = 'task';
-    taskDiv.classList.add(`priority-${task.priority}`);
+		for (const task of tasks) {
+			const taskDiv = UIController.#createTaskElement(task, project.id);
+			tasksDiv.appendChild(taskDiv);
+		}
 
-    const taskCheckbox = document.createElement('input');
-    taskCheckbox.type = 'checkbox';
-    taskCheckbox.className = 'task-checkbox';
-    taskCheckbox.checked = task.completed;
-    (task.completed) ? taskDiv.classList.add('completed') : taskDiv.classList.remove('completed');
+		container.appendChild(div);
+		container.appendChild(tasksDiv);
+	}
 
-    const taskTitleDiv = document.createElement('div');
-    taskTitleDiv.className = 'task-title';
-    taskTitleDiv.textContent = task.title;
+	static #createTaskElement(task, projectId) {
+		const taskDiv = document.createElement("div");
+		taskDiv.className = "task";
+		taskDiv.classList.add(`priority-${task.priority}`);
 
-    const taskDueDateDiv = document.createElement('div');
-    taskDueDateDiv.className = 'task-due-date';
-    taskDueDateDiv.textContent = format(task.dueDate, 'MMMM do');
+		const taskCheckbox = document.createElement("input");
+		taskCheckbox.type = "checkbox";
+		taskCheckbox.className = "task-checkbox";
+		taskCheckbox.checked = task.completed;
+		task.completed
+			? taskDiv.classList.add("completed")
+			: taskDiv.classList.remove("completed");
 
-    const taskEditBtn = document.createElement('button');
-    taskEditBtn.id = 'task-edit-btn';
-    taskEditBtn.textContent = 'Edit';
+		const taskTitleDiv = document.createElement("div");
+		taskTitleDiv.className = "task-title";
+		taskTitleDiv.textContent = task.title;
 
-    const taskRemoveBtn = document.createElement('button');
-    taskRemoveBtn.id = 'task-remove-btn';
-    taskRemoveBtn.textContent = 'Remove';
+		const taskDueDateDiv = document.createElement("div");
+		taskDueDateDiv.className = "task-due-date";
+		taskDueDateDiv.textContent = format(task.dueDate, "MMMM do");
 
-    taskCheckbox.addEventListener('change', () => {
-      task.toggleComplete();
-      (task.completed) ? taskDiv.classList.add('completed') : taskDiv.classList.remove('completed');
+		const taskEditBtn = document.createElement("button");
+		taskEditBtn.id = "task-edit-btn";
+		taskEditBtn.textContent = "Edit";
 
-      Storage.updateTask(projectId, task);
-    });
+		const taskRemoveBtn = document.createElement("button");
+		taskRemoveBtn.id = "task-remove-btn";
+		taskRemoveBtn.textContent = "Remove";
 
-    taskEditBtn.addEventListener('click', () => {
-      const dialogElements = [
-        { value: 'title', type: 'text' },
-        { value: 'dueDate', type: 'date' },
-        { value: 'priority', type: 'select', options: ['high', 'medium', 'low'] }
-      ];
-      
-      const dialog = UIController.createDialogElement('task', dialogElements, (data) => {
-        task.title = data.title;
-        task.dueDate = data.dueDate;
-        task.priority = data.priority;
+		taskCheckbox.addEventListener("change", () => {
+			task.toggleComplete();
+			task.completed
+				? taskDiv.classList.add("completed")
+				: taskDiv.classList.remove("completed");
 
-        Storage.updateTask(projectId, task);
-        UIController.#reRender(projectId);
-      });
+			Storage.updateTask(projectId, task);
+		});
 
-      dialog.querySelector('#title').value = task.title;
-      dialog.querySelector('#dueDate').value = format(task.dueDate, 'yyyy-MM-dd');
-      dialog.querySelector('#priority').value = task.priority;
+		taskEditBtn.addEventListener("click", () => {
+			const dialogElements = [
+				{ value: "title", type: "text" },
+				{ value: "dueDate", type: "date" },
+				{
+					value: "priority",
+					type: "select",
+					options: ["high", "medium", "low"],
+				},
+			];
 
-      dialog.showModal();
-    });
+			const dialog = UIController.createDialogElement(
+				"task",
+				dialogElements,
+				(data) => {
+					task.title = data.title;
+					task.dueDate = data.dueDate;
+					task.priority = data.priority;
 
-    taskRemoveBtn.addEventListener('click', () => {
-      const dialogElements = [
-        { value: 'Are you sure you want to delete this task?', type: 'delete' },
-      ];
+					Storage.updateTask(projectId, task);
+					UIController.#reRender(projectId);
+				},
+			);
 
-      const dialog = UIController.createDialogElement('delete', dialogElements, () => {
-        Storage.deleteTask(projectId, task);
-        UIController.#reRender(projectId);
-      });
+			dialog.querySelector("#title").value = task.title;
+			dialog.querySelector("#dueDate").value = format(
+				task.dueDate,
+				"yyyy-MM-dd",
+			);
+			dialog.querySelector("#priority").value = task.priority;
 
-      dialog.showModal();
-    });
+			dialog.showModal();
+		});
 
-    taskDiv.appendChild(taskCheckbox);
-    taskDiv.appendChild(taskTitleDiv);
-    taskDiv.appendChild(taskDueDateDiv);
-    taskDiv.appendChild(taskEditBtn);
-    taskDiv.appendChild(taskRemoveBtn);
-    return taskDiv;
-  }
+		taskRemoveBtn.addEventListener("click", () => {
+			const dialogElements = [
+				{ value: "Are you sure you want to delete this task?", type: "delete" },
+			];
 
-  static #reRender(projectId) {
-    const projects = Storage.load('Projects'); 
-    const projectIndex = projects.findIndex((project) => project.id === projectId);
-    UIController.renderProjects(projects);
-    UIController.renderTasks(projects[projectIndex].tasks, projects[projectIndex]);
-  }
+			const dialog = UIController.createDialogElement(
+				"delete",
+				dialogElements,
+				() => {
+					Storage.deleteTask(projectId, task);
+					UIController.#reRender(projectId);
+				},
+			);
 
-  static createDialogElement(type, properties, onSubmit) {
-    const body = document.querySelector('body');
+			dialog.showModal();
+		});
 
-    const existingDialog = document.querySelector(`#${type}-dialog`);
-    if (existingDialog) existingDialog.remove();
+		taskDiv.appendChild(taskCheckbox);
+		taskDiv.appendChild(taskTitleDiv);
+		taskDiv.appendChild(taskDueDateDiv);
+		taskDiv.appendChild(taskEditBtn);
+		taskDiv.appendChild(taskRemoveBtn);
+		return taskDiv;
+	}
 
-    const dialog = document.createElement('dialog');
-    dialog.id = type + '-dialog';
-    const form = document.createElement('form');
-    form.method = 'dialog';
+	static #reRender(projectId) {
+		const projects = Storage.load("Projects");
+		const projectIndex = projects.findIndex(
+			(project) => project.id === projectId,
+		);
+		UIController.renderProjects(projects);
+		UIController.renderTasks(
+			projects[projectIndex].tasks,
+			projects[projectIndex],
+		);
+	}
 
-    properties.forEach((prop) => {
-      const div = document.createElement('div');
-      const label = document.createElement('label');
-      label.htmlFor = prop.value;
-      label.textContent = prop.value[0].toUpperCase() + prop.value.slice(1, prop.value.length) + ':';
+	static createDialogElement(type, properties, onSubmit) {
+		const body = document.querySelector("body");
 
-      if (prop.type === 'select') {
-        const select = document.createElement('select');
-        select.id = prop.value;
-        select.name = prop.value;
-        select.required = true;
+		const existingDialog = document.querySelector(`#${type}-dialog`);
+		if (existingDialog) existingDialog.remove();
 
-        prop.options.forEach((option) => {
-          const opt = document.createElement('option');
-          opt.value = option;
-          opt.textContent = option[0].toUpperCase() + option.slice(1, option.length);
-          select.appendChild(opt);
-        });
+		const dialog = document.createElement("dialog");
+		dialog.id = `${type}-dialog`;
+		const form = document.createElement("form");
+		form.method = "dialog";
 
-        div.appendChild(label);
-        div.appendChild(select);
-      } else if (prop.type === 'delete') {
-        const p = document.createElement('p');
-        p.textContent = prop.value;
-        div.appendChild(p);
-      } else if (prop.type === 'textarea') {
-        const textarea = document.createElement('textarea');
-        textarea.id = prop.value;
-        textarea.name = prop.value;
-        textarea.required = true;
-        textarea.rows = 3;
-        div.appendChild(label);
-        div.appendChild(textarea);
-      } else {
-        const input = document.createElement('input');
-        input.type = prop.type;
-        input.id = prop.value;
-        input.name = prop.value;
-        input.required = true;
+		for (const prop of properties) {
+			const div = document.createElement("div");
+			const label = document.createElement("label");
+			label.htmlFor = prop.value;
+			label.textContent = `${
+				prop.value[0].toUpperCase() + prop.value.slice(1, prop.value.length)
+			}:`;
 
-        if (prop.type === 'checkbox') {
-          input.className = 'flex-0';
-          input.required = false;
-        }
+			if (prop.type === "select") {
+				const select = document.createElement("select");
+				select.id = prop.value;
+				select.name = prop.value;
+				select.required = true;
 
-        div.appendChild(label);
-        div.appendChild(input);
-      }
-      
-      form.appendChild(div);
-    });
+				for (const option of prop.options) {
+					const opt = document.createElement("option");
+					opt.value = option;
+					opt.textContent =
+						option[0].toUpperCase() + option.slice(1, option.length);
+					select.appendChild(opt);
+				}
 
-    const buttonGroup = document.createElement('div');
-    buttonGroup.className = 'button-group';
-    const closeModalBtn = document.createElement('button');
-    closeModalBtn.type = 'button';
-    closeModalBtn.textContent = 'Close';
-    const submitModalBtn = document.createElement('button');
-    submitModalBtn.type = 'submit';
-    submitModalBtn.textContent = 'Submit';
+				div.appendChild(label);
+				div.appendChild(select);
+			} else if (prop.type === "delete") {
+				const p = document.createElement("p");
+				p.textContent = prop.value;
+				div.appendChild(p);
+			} else if (prop.type === "textarea") {
+				const textarea = document.createElement("textarea");
+				textarea.id = prop.value;
+				textarea.name = prop.value;
+				textarea.required = true;
+				textarea.rows = 3;
+				div.appendChild(label);
+				div.appendChild(textarea);
+			} else {
+				const input = document.createElement("input");
+				input.type = prop.type;
+				input.id = prop.value;
+				input.name = prop.value;
+				input.required = true;
 
-    closeModalBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      dialog.close();
-      if (type !== 'project') dialog.remove();
-    })
+				if (prop.type === "checkbox") {
+					input.className = "flex-0";
+					input.required = false;
+				}
 
-    submitModalBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-  
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-      }
+				div.appendChild(label);
+				div.appendChild(input);
+			}
 
-      const formData = {};
-      properties.forEach(prop => {
-        const element = form.elements[prop.value];
+			form.appendChild(div);
+		}
 
-        if (element?.type === "checkbox") {
-          formData[prop.value] = element.checked ? true : false;
-        } else {
-          formData[prop.value] = element?.value || '';
-        }
-      });
+		const buttonGroup = document.createElement("div");
+		buttonGroup.className = "button-group";
+		const closeModalBtn = document.createElement("button");
+		closeModalBtn.type = "button";
+		closeModalBtn.textContent = "Close";
+		const submitModalBtn = document.createElement("button");
+		submitModalBtn.type = "submit";
+		submitModalBtn.textContent = "Submit";
 
-      if (formData.dueDate) {
-        const isDueDateValid = UIController.#validateDueDate(formData.dueDate);
-        console.log(isDueDateValid)
-        if (!isDueDateValid) {
-          const label = document.querySelector('label[for="dueDate"]');
-          if (label.querySelector('span')) return;
-          const input = label.nextElementSibling;
-          input.className = 'error-input';
-          const span = document.createElement('span');
-          span.className = 'error-msg';
-          span.textContent = 'Due date cannot be in the past.';
-          label.appendChild(span);
-          return;
-        }
-      }
+		closeModalBtn.addEventListener("click", (e) => {
+			e.preventDefault();
+			dialog.close();
+			if (type !== "project") dialog.remove();
+		});
 
-      if (onSubmit) onSubmit(formData);
+		submitModalBtn.addEventListener("click", (e) => {
+			e.preventDefault();
 
-      form.reset();
-      dialog.close();
+			if (!form.checkValidity()) {
+				form.reportValidity();
+				return;
+			}
 
-      if (type !== 'project') dialog.remove();
-    });
+			const formData = {};
+			for (const prop of properties) {
+				const element = form.elements[prop.value];
 
-    buttonGroup.appendChild(closeModalBtn);
-    buttonGroup.appendChild(submitModalBtn);
-    form.appendChild(buttonGroup);
-    dialog.appendChild(form);
-    body.appendChild(dialog);
-    return dialog;
-  }
+				if (element?.type === "checkbox") {
+					formData[prop.value] = !!element.checked;
+				} else {
+					formData[prop.value] = element?.value || "";
+				}
+			}
 
-  static #validateDueDate(dueDate) {
-    const dueDateObj = parseISO(dueDate);
-    const today = startOfDay(new Date());
-    return !isBefore(dueDateObj, today);
-  }
+			if (formData.dueDate) {
+				const isDueDateValid = UIController.#validateDueDate(formData.dueDate);
+				console.log(isDueDateValid);
+				if (!isDueDateValid) {
+					const label = document.querySelector('label[for="dueDate"]');
+					if (label.querySelector("span")) return;
+					const input = label.nextElementSibling;
+					input.className = "error-input";
+					const span = document.createElement("span");
+					span.className = "error-msg";
+					span.textContent = "Due date cannot be in the past.";
+					label.appendChild(span);
+					return;
+				}
+			}
+
+			if (onSubmit) onSubmit(formData);
+
+			form.reset();
+			dialog.close();
+
+			if (type !== "project") dialog.remove();
+		});
+
+		buttonGroup.appendChild(closeModalBtn);
+		buttonGroup.appendChild(submitModalBtn);
+		form.appendChild(buttonGroup);
+		dialog.appendChild(form);
+		body.appendChild(dialog);
+		return dialog;
+	}
+
+	static #validateDueDate(dueDate) {
+		const dueDateObj = parseISO(dueDate);
+		const today = startOfDay(new Date());
+		return !isBefore(dueDateObj, today);
+	}
 }
