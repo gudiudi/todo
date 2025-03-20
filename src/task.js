@@ -1,16 +1,26 @@
 export default class Task {
+  #id;
   #title;
   #description;
   #dueDate;
   #priority;
   #completed;
 
-  constructor(title, description, dueDate, priority, completed) {
+  constructor(title, description, dueDate, priority, completed, id = crypto.randomUUID()) {
+    this.#id = id;
     this.#title = title;
     this.#description = description;
     this.#dueDate = new Date(dueDate);
     this.#priority = priority;
     this.#completed = completed;
+  }
+
+  get id() {
+    return this.#id;
+  }
+
+  set id(id) {
+    this.#id = id;
   }
 
   get title() {
@@ -55,6 +65,7 @@ export default class Task {
 
   toJSON() {
     return { 
+      id: this.#id,
       title: this.#title, 
       description: this.#description, 
       dueDate: this.#dueDate,
@@ -64,7 +75,7 @@ export default class Task {
   }
 
   static fromObject(obj) {
-    const task = new Task(obj.title, obj.description, obj.dueDate, obj.priority, obj.completed);
+    const task = new Task(obj.title, obj.description, obj.dueDate, obj.priority, obj.completed, obj.id);
     return task;
   }
 }

@@ -1,10 +1,20 @@
 export default class Project {
+  #id;
   #title;
   #tasks;
 
-  constructor(title) {
+  constructor(title, id = crypto.randomUUID()) {
+    this.#id = id;
     this.#title = title;
     this.#tasks = []; // should've use id and store them to localstorage instead of this
+  }
+
+  get id() {
+    return this.#id;
+  }
+
+  set id(id) {
+    this.#id = id;
   }
 
   get title() {
@@ -20,11 +30,11 @@ export default class Project {
   }
 
   toJSON() {
-    return { title: this.#title, tasks: this.#tasks };
+    return { id: this.#id, title: this.#title, tasks: this.#tasks };
   }
 
   static fromObject(obj, Task) {
-    const project = new Project(obj.title);
+    const project = new Project(obj.title, obj.id);
     obj.tasks.forEach((task) => project.addTask(Task.fromObject(task)));
     return project;
   }

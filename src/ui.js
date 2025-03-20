@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import Storage from "./storage.js";
 
 export default class UIController {
   static renderProjects(projects) {
@@ -12,23 +13,24 @@ export default class UIController {
       projectsDiv.appendChild(projectDiv);
 
       projectDiv.addEventListener('click', () => {
-        UIController.renderTasks(project.tasks, project.title);
+        UIController.renderTasks(project.tasks, project);
       });
     });
   }
 
-  static renderTasks(tasks, projectTitle) {
+  static renderTasks(tasks, project) {
+    tasks = tasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
     const container = document.querySelector('.container');
     container.innerHTML = '';
 
     const projectTitleElement = document.createElement('h2');
-    projectTitleElement.textContent = projectTitle
+    projectTitleElement.textContent = project.title
 
     const tasksDiv = document.createElement('div');
     tasksDiv.className = 'tasks';
 
     tasks.forEach((task) => {
-      const taskDiv = UIController.#createTaskElement(task);
+      const taskDiv = UIController.#createTaskElement(task, project.id);
       tasksDiv.appendChild(taskDiv);
     });
 
@@ -36,7 +38,7 @@ export default class UIController {
     container.appendChild(tasksDiv);
   }
 
-  static #createTaskElement(task) {
+  static #createTaskElement(task, projectId) {
     const taskDiv = document.createElement('div');
     taskDiv.className = 'task';
     taskDiv.classList.add(`priority-${task.priority}`);
@@ -70,6 +72,8 @@ export default class UIController {
     taskCheckbox.addEventListener('change', () => {
       task.toggleComplete();
       (task.completed) ? taskDiv.classList.add('completed') : taskDiv.classList.remove('completed');
+
+      Storage.updateTask(projectId, task);
     });
 
     taskEditBtn.addEventListener('click', () => {
@@ -80,7 +84,14 @@ export default class UIController {
       ];
       
       const dialog = UIController.createDialogElement('task', dialogElements, (data) => {
-        console.log(data);
+        task.title = data.title;
+        task.dueDate = data.dueDate;
+        task.priority = data.priority;
+
+        Storage.updateTask(projectId, task);
+        const projects = Storage.load('Projects'); 
+        const projectIndex = projects.findIndex((project) => project.id === projectId);
+        UIController.renderTasks(projects[projectIndex].tasks, projects[projectIndex]);
       });
 
       dialog.querySelector('#title').value = task.title;
