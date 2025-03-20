@@ -23,8 +23,15 @@ export default class UIController {
     const container = document.querySelector('.container');
     container.innerHTML = '';
 
+    const div = document.createElement('div');
     const projectTitleElement = document.createElement('h2');
     projectTitleElement.textContent = project.title
+    div.appendChild(projectTitleElement);
+
+    const taskAddButton = document.createElement('button')
+    taskAddButton.id = 'new-task-btn';
+    taskAddButton.textContent = '+';
+    div.appendChild(taskAddButton);
 
     const tasksDiv = document.createElement('div');
     tasksDiv.className = 'tasks';
@@ -34,7 +41,7 @@ export default class UIController {
       tasksDiv.appendChild(taskDiv);
     });
 
-    container.appendChild(projectTitleElement);
+    container.appendChild(div);
     container.appendChild(tasksDiv);
   }
 
@@ -95,7 +102,7 @@ export default class UIController {
       });
 
       dialog.querySelector('#title').value = task.title;
-      document.querySelector('#dueDate').value = format(task.dueDate, 'yyyy-MM-dd');
+      dialog.querySelector('#dueDate').value = format(task.dueDate, 'yyyy-MM-dd');
       dialog.querySelector('#priority').value = task.priority;
 
       dialog.showModal();
