@@ -1,5 +1,4 @@
 import { format } from "date-fns";
-import Project from "./project.js";
 
 export default class UIController {
   static renderProjects(projects) {
@@ -46,7 +45,7 @@ export default class UIController {
     taskCheckbox.type = 'checkbox';
     taskCheckbox.className = 'task-checkbox';
     taskCheckbox.checked = task.completed;
-    (task.completed) ? taskDiv.classList.add('completed') : taskDiv.classList.remove('completed')
+    (task.completed) ? taskDiv.classList.add('completed') : taskDiv.classList.remove('completed');
 
     const taskTitleDiv = document.createElement('div');
     taskTitleDiv.className = 'task-title';
@@ -84,6 +83,7 @@ export default class UIController {
 
   static createDialogElement(properties, onSubmit) {
     const body = document.querySelector('body');
+
     const dialog = document.createElement('dialog');
     const form = document.createElement('form');
     form.method = 'dialog';

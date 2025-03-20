@@ -3,6 +3,7 @@ import "./styles.css";
 import Project from "./project.js";
 import Task from "./task.js";
 import UIController from "./ui.js";
+import Storage from "./storage.js";
 
 (() => {
   const projects = [];
@@ -16,18 +17,32 @@ import UIController from "./ui.js";
   localStorage.setItem('Projects', [JSON.stringify(projects)]);
   UIController.renderProjects([defaultProject]);
 
-
   const newProjectBtn = document.getElementById('new-project-btn');
   const newProjectModal = UIController.createDialogElement([{value: 'title', type: 'text'}], (data) => {
     const newProject = new Project(data.title);
     projects.push(newProject);
-    localStorage.setItem('Projects', JSON.stringify(projects));
+    Storage.save('Projects', projects);
 
-    const storedProjects = JSON.parse(localStorage.getItem('Projects')) || [];
-    const restoredProjects = storedProjects.map((project) => Project.fromObject(project, Task));
-    console.log(restoredProjects);
-
+    const restoredProjects = Storage.load('Projects', Project, Task);
     UIController.renderProjects(restoredProjects);
   });
   newProjectBtn.addEventListener("click", () => newProjectModal.showModal());
+
+  const dialogElements = [
+    { value: 'title', type: 'text' },
+    { value: 'dueDate', type: 'date' },
+    { value: 'priority', type: 'number' }
+  ];
+  const taskModal = UIController.createDialogElement(dialogElements);
+  console.log(taskModal);
 })();
+
+
+/*
+TODO
+move this to index js use delegation?
+projectDiv.addEventListener('click', () => {
+        UIController.renderTasks(project.tasks, project.title);
+      });
+then render when rendering task add the task modal 
+*/
