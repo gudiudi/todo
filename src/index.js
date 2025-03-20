@@ -30,6 +30,11 @@ import Storage from "./storage.js";
     UIController.renderProjects(restoredProjects);
   });
   newProjectBtn.addEventListener("click", () => newProjectModal.showModal());
+
+  UIController.renderTodayTasks();
+
+  const today = document.getElementById('today');
+  today.addEventListener("click", () => UIController.renderTodayTasks());
 })();
 
 /*

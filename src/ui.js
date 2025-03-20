@@ -1,8 +1,52 @@
-import { parseISO, isBefore, startOfDay, format } from "date-fns";
+import { isSameDay, parseISO, isBefore, startOfDay, format } from "date-fns";
 import Storage from "./storage.js";
 import Task from "./task.js";
 
 export default class UIController {
+  static renderTodayTasks() {
+    const container = document.querySelector('.container');
+    container.innerHTML = '';
+
+    const title = document.createElement('h2');
+    title.textContent = 'Today'
+    container.appendChild(title)
+
+    const tasksDiv = document.createElement('div');
+    tasksDiv.className = 'tasks';
+
+    const projects = Storage.load('Projects');
+    const todayTasks = [];
+    projects.forEach((project) => {
+      project.tasks.forEach((task) => {
+        if (isSameDay(task.dueDate, new Date())) {
+          todayTasks.push(task);
+        }
+      });
+    });
+
+    console.log(todayTasks);
+
+    todayTasks.forEach((task) => {
+      const taskDiv = document.createElement('div');
+      taskDiv.className = 'task';
+      taskDiv.classList.add(`priority-${task.priority}`);
+
+      const taskTitleDiv = document.createElement('div');
+      taskTitleDiv.className = 'task-title';
+      taskTitleDiv.textContent = task.title;
+
+      const taskDueDateDiv = document.createElement('div');
+      taskDueDateDiv.className = 'task-due-date';
+      taskDueDateDiv.textContent = format(task.dueDate, 'MMMM do');
+
+      taskDiv.appendChild(taskTitleDiv);
+      taskDiv.appendChild(taskDueDateDiv);
+      tasksDiv.appendChild(taskDiv);
+    });
+
+    container.appendChild(tasksDiv);
+  }
+
   static renderProjects(projects) {
     const projectsDiv = document.querySelector('.project-sections');
     projectsDiv.innerHTML = '';
@@ -249,18 +293,20 @@ export default class UIController {
         }
       });
 
-      const isDueDateValid = UIController.#validateDueDate(formData.dueDate);
-      console.log(isDueDateValid)
-      if (!isDueDateValid) {
-        const label = document.querySelector('label[for="dueDate"]');
-        if (label.querySelector('span')) return;
-        const input = label.nextElementSibling;
-        input.className = 'error-input';
-        const span = document.createElement('span');
-        span.className = 'error-msg';
-        span.textContent = 'Due date cannot be in the past.';
-        label.appendChild(span);
-        return;
+      if (formData.dueDate) {
+        const isDueDateValid = UIController.#validateDueDate(formData.dueDate);
+        console.log(isDueDateValid)
+        if (!isDueDateValid) {
+          const label = document.querySelector('label[for="dueDate"]');
+          if (label.querySelector('span')) return;
+          const input = label.nextElementSibling;
+          input.className = 'error-input';
+          const span = document.createElement('span');
+          span.className = 'error-msg';
+          span.textContent = 'Due date cannot be in the past.';
+          label.appendChild(span);
+          return;
+        }
       }
 
       if (onSubmit) onSubmit(formData);
