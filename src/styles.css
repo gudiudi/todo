@@ -129,7 +129,8 @@ form > div:last-child {
   flex-wrap: nowrap;
 }
 
-input {
+input,
+select {
   border: 1px solid #D6D6D6;
   padding: 0.5rem;
   outline: none;

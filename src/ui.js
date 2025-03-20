@@ -72,6 +72,24 @@ export default class UIController {
       (task.completed) ? taskDiv.classList.add('completed') : taskDiv.classList.remove('completed');
     });
 
+    taskEditBtn.addEventListener('click', () => {
+      const dialogElements = [
+        { value: 'title', type: 'text' },
+        { value: 'dueDate', type: 'date' },
+        { value: 'priority', type: 'select', options: ['high', 'medium', 'low'] }
+      ];
+      
+      const dialog = UIController.createDialogElement('task', dialogElements, (data) => {
+        console.log(data);
+      });
+
+      dialog.querySelector('#title').value = task.title;
+      document.querySelector('#dueDate').value = format(task.dueDate, 'yyyy-MM-dd');
+      dialog.querySelector('#priority').value = task.priority;
+
+      dialog.showModal();
+    });
+
     taskDiv.appendChild(taskCheckbox);
     taskDiv.appendChild(taskTitleDiv);
     taskDiv.appendChild(taskDueDateDiv);
@@ -81,10 +99,14 @@ export default class UIController {
     return taskDiv;
   }
 
-  static createDialogElement(properties, onSubmit) {
+  static createDialogElement(type, properties, onSubmit) {
     const body = document.querySelector('body');
 
+    const existingDialog = document.querySelector(`#${type}-dialog`);
+    if (existingDialog) existingDialog.remove();
+
     const dialog = document.createElement('dialog');
+    dialog.id = type + '-dialog';
     const form = document.createElement('form');
     form.method = 'dialog';
 
@@ -93,14 +115,33 @@ export default class UIController {
       const label = document.createElement('label');
       label.htmlFor = prop.value;
       label.textContent = prop.value[0].toUpperCase() + prop.value.slice(1, prop.value.length) + ':';
-      const input = document.createElement('input');
-      input.type = prop.type;
-      input.id = prop.value;
-      input.name = prop.value;
-      input.required = true;
 
-      div.appendChild(label);
-      div.appendChild(input);
+      if (prop.type === 'select') {
+        const select = document.createElement('select');
+        select.id = prop.value;
+        select.name = prop.value;
+        select.required = true;
+
+        prop.options.forEach((option) => {
+          const opt = document.createElement('option');
+          opt.value = option;
+          opt.textContent = option[0].toUpperCase() + option.slice(1, option.length);
+          select.appendChild(opt);
+        });
+
+        div.appendChild(label);
+        div.appendChild(select);
+      } else {
+        const input = document.createElement('input');
+        input.type = prop.type;
+        input.id = prop.value;
+        input.name = prop.value;
+        input.required = true;
+
+        div.appendChild(label);
+        div.appendChild(input);
+      }
+      
       form.appendChild(div);
     });
 
@@ -116,6 +157,7 @@ export default class UIController {
     closeModalBtn.addEventListener("click", (e) => {
       e.preventDefault();
       dialog.close();
+      if (type !== 'project') dialog.remove();
     })
 
     submitModalBtn.addEventListener("click", (e) => {
@@ -135,6 +177,8 @@ export default class UIController {
 
       form.reset();
       dialog.close();
+
+      if (type !== 'project') dialog.remove();
     });
 
     buttonGroup.appendChild(closeModalBtn);
