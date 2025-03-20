@@ -20,6 +20,7 @@ import Storage from "./storage.js";
 
   const newProjectBtn = document.getElementById('new-project-btn');
   const newProjectModal = UIController.createDialogElement('project', [{value: 'title', type: 'text'}], (data) => {
+    const projects = Storage.load('Projects');
     const newProject = new Project(data.title);
     projects.push(newProject);
     Storage.save('Projects', projects);
@@ -30,3 +31,8 @@ import Storage from "./storage.js";
   });
   newProjectBtn.addEventListener("click", () => newProjectModal.showModal());
 })();
+
+/*
+Use MVC
+store by id for easier crud
+*/

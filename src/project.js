@@ -43,7 +43,7 @@ export default class Project {
     this.#tasks.push(task);
   }
 
-  deleteTask(taskId) {
+  deleteTask(taskId, projectId) {
     const index = this.#tasks.findIndex((task) => task.id === taskId);
     if (index === -1) return;
     this.#tasks.splice(index, 1);

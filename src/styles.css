@@ -52,6 +52,24 @@ body {
   padding: 2rem;
 }
 
+.container-header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.container-header button {
+  cursor: pointer;
+  border: none;
+  font-size: 1.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.container-header button:hover {
+  cursor: pointer;
+  background-color: #D6D6D6;
+}
+
 .tasks {
   display: flex;
   flex-direction: column;

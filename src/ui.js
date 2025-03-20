@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import Storage from "./storage.js";
+import Project from "./project.js";
 
 export default class UIController {
   static renderProjects(projects) {
@@ -24,6 +25,8 @@ export default class UIController {
     container.innerHTML = '';
 
     const div = document.createElement('div');
+    div.className = 'container-header';
+
     const projectTitleElement = document.createElement('h2');
     projectTitleElement.textContent = project.title
     div.appendChild(projectTitleElement);
@@ -64,10 +67,6 @@ export default class UIController {
     taskDueDateDiv.className = 'task-due-date';
     taskDueDateDiv.textContent = format(task.dueDate, 'MMMM do');
 
-    const taskDetailsBtn = document.createElement('button');
-    taskDetailsBtn.id = 'task-details-btn';
-    taskDetailsBtn.textContent = 'Details';
-
     const taskEditBtn = document.createElement('button');
     taskEditBtn.id = 'task-edit-btn';
     taskEditBtn.textContent = 'Edit';
@@ -98,6 +97,7 @@ export default class UIController {
         Storage.updateTask(projectId, task);
         const projects = Storage.load('Projects'); 
         const projectIndex = projects.findIndex((project) => project.id === projectId);
+        UIController.renderProjects(projects);
         UIController.renderTasks(projects[projectIndex].tasks, projects[projectIndex]);
       });
 
@@ -108,10 +108,26 @@ export default class UIController {
       dialog.showModal();
     });
 
+    taskRemoveBtn.addEventListener('click', () => {
+      const dialogElements = [
+        { value: 'Are you sure you want to delete this task?', type: 'delete' },
+      ];
+
+      const dialog = UIController.createDialogElement('delete', dialogElements, () => {
+        Storage.deleteTask(projectId, task);
+
+        const projects = Storage.load('Projects'); 
+        const projectIndex = projects.findIndex((project) => project.id === projectId);
+        UIController.renderProjects(projects);
+        UIController.renderTasks(projects[projectIndex].tasks, projects[projectIndex]);
+      });
+
+      dialog.showModal();
+    });
+
     taskDiv.appendChild(taskCheckbox);
     taskDiv.appendChild(taskTitleDiv);
     taskDiv.appendChild(taskDueDateDiv);
-    taskDiv.appendChild(taskDetailsBtn);
     taskDiv.appendChild(taskEditBtn);
     taskDiv.appendChild(taskRemoveBtn);
     return taskDiv;
@@ -149,6 +165,10 @@ export default class UIController {
 
         div.appendChild(label);
         div.appendChild(select);
+      } else if (prop.type === 'delete') {
+        const p = document.createElement('p');
+        p.textContent = prop.value;
+        div.appendChild(p);
       } else {
         const input = document.createElement('input');
         input.type = prop.type;
@@ -188,7 +208,7 @@ export default class UIController {
 
       const formData = {};
       properties.forEach(prop => {
-        formData[prop.value] = form.elements[prop.value].value;
+        formData[prop.value] = form.elements[prop.value]?.value;
       });
 
       if (onSubmit) onSubmit(formData);
