@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { parseISO, isBefore, startOfDay, format } from "date-fns";
 import Storage from "./storage.js";
 import Task from "./task.js";
 
@@ -249,6 +249,20 @@ export default class UIController {
         }
       });
 
+      const isDueDateValid = UIController.#validateDueDate(formData.dueDate);
+      console.log(isDueDateValid)
+      if (!isDueDateValid) {
+        const label = document.querySelector('label[for="dueDate"]');
+        if (label.querySelector('span')) return;
+        const input = label.nextElementSibling;
+        input.className = 'error-input';
+        const span = document.createElement('span');
+        span.className = 'error-msg';
+        span.textContent = 'Due date cannot be in the past.';
+        label.appendChild(span);
+        return;
+      }
+
       if (onSubmit) onSubmit(formData);
 
       form.reset();
@@ -263,5 +277,11 @@ export default class UIController {
     dialog.appendChild(form);
     body.appendChild(dialog);
     return dialog;
+  }
+
+  static #validateDueDate(dueDate) {
+    const dueDateObj = parseISO(dueDate);
+    const today = startOfDay(new Date());
+    return !isBefore(dueDateObj, today);
   }
 }

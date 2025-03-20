@@ -160,6 +160,16 @@ textarea {
   flex: 1 1 100%;
 }
 
+.error-msg { 
+  color: red;
+  display: block;
+  font-size: 14px;
+}
+
+.error-input {
+  border: 1px solid red;
+}
+
 .button-group {
   margin-top: 0.5rem;
   display: flex;
